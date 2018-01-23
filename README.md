@@ -20,6 +20,10 @@ TODO utils (`utils.cljs`):
 TODO valid (`valid.cljs`):
 - All methods and docstrings.
 
+TODO:
+- More random `generate-seed` method in `core.cljs`.
+- Use [tools.deps](https://github.com/clojure/tools.deps.alpha) instead of lein
+
 ## Installation
 
 ```clojure
