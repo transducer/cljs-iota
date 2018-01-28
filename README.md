@@ -10,6 +10,7 @@ TODO Standard API (`api.cljs`):
 - `get-trytes`, only returns 9s
 - `attach-to-tangle`, `broadcast-transactions`, and `store-transactions`
   return "Invalid Trytes provided".
+- Rest of JavaScript API.
 
 TODO multisig (`multisig.cljs`):
 - All methods and docstrings.

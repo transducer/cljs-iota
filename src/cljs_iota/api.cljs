@@ -262,3 +262,125 @@
 
 ;;;;
 ;;;; JavaScript API
+
+(defn get-transactions-objects
+  "Wrapper function for `get-trytes` and the Utility function
+  `transaction-objects.` This function basically returns the entire transaction
+  objects for a list of transaction hashes.
+
+  Arguments:
+  hashes - List of transaction hashes
+  callback - Callback with error and result
+
+  Returns list of all the transaction objects from the corresponding hashes."
+  [iota & args]
+  (js-utils/js-apply (api iota) "getTransactionsObjects" args))
+
+
+;;; `find-transaction-objects` behaves as `find-transactions`, alias included
+
+(def find-transaction-objects find-transactions)
+
+
+(defn get-latest-inclusion
+  "Wrapper function for `get-node-info` and `get-inclusion-states`. It simply
+  takes the most recent solid milestone as returned by `get-node-info`, and uses
+  it to get the inclusion states of a list of transaction hashes.
+
+  Arguments:
+  hashes - Array List of transaction hashes
+  callback - Function callback with error and result
+
+  Returns list of all the inclusion states of the transaction hashes."
+  [iota & args]
+  (js-utils/js-apply (api iota) "getLatestInclusion" args))
+
+
+;;; Mentioned in iota.lib.js README, but not implemented on API object
+
+#_(defn broadcast-and-store
+  "Wrapper function for `broadcast-transactions` and `store-transactions`.
+
+  Arguments:
+  trytes: List of transaction trytes to be broadcast and stored. Has to be
+          trytes that were returned from `attach-to-tangle`
+  callback: Function callback with error and result parameters.
+
+  Returns empty map."
+    [iota & args]
+  (js-utils/js-apply (api iota) "broadcastAndStore" args))
+
+
+(defn get-new-address
+  "Generates a new address from a seed and returns the address. This is either
+  done deterministically, or by providing the index of the new address to be
+  generated. When generating an address, you have the option to choose different
+  security levels for your private keys. A different security level with the
+  same key index, means that you will get a different address obviously (as
+  such, you could argue that single seed has 3 different accounts, depending on
+  the security level chosen).
+
+  In total, there are 3 different security options available to choose from:
+  Input 	Security Level 	Security
+  1 	    Low 	          81-trits
+  2 	    Medium 	        162-trits
+  3 	    High 	          243-trits
+
+  Arguments:
+
+  seed - tryte-encoded seed. It should be noted that this seed is not
+         transferred
+  options - Map which is optional with following keys:
+    :index - If the index is provided, the generation of the address is not
+             deterministic.
+
+    :checksum - true or false - Adds 9-tryte address checksum
+    :total - Total number of addresses to generate.
+    :security - Security level to be used for the private key / address. Can be
+                1, 2 or 3
+    :return-all - If true, it returns all addresses which were deterministically
+                  generated (until `find-transactions` returns nil)
+  callback - Optional function callback with error and result.
+
+  Returns either a string, or an array of strings."
+  [iota & args]
+  (js-utils/js-apply (api iota) "getNewAddress" args))
+
+
+;;; TODO next up: https://github.com/iotaledger/iota.lib.js/#getinputs
+
+(defn get-account-data
+  "Similar to `get-transfers`, just a bit more comprehensive in the sense that
+  it also returns the addresses, transfers, inputs and balance that are
+  associated and have been used with your account (seed). This function is
+  useful in getting all the relevant information of your account. If you want to
+  have your transfers split into received / sent, you can use the utility
+  function `categorize-transfers`.
+
+
+  Arguments:
+  seed - Tryte-encoded seed. It should be noted that this seed is not
+         transferred
+  options - optional map with:
+    :start - Starting key index for search
+    :end - Ending key index for search
+  security - Security level to be used for the private key / addresses,
+             which is used for getting all associated transfers
+  callback - Optional callback with error and result
+
+
+  Returns map of your account data in the following format:
+  ```
+
+  {:latest-address \"\" ; Latest, unused address which has no transactions in
+                        ; the tangle
+   :addresses     []    ; List of all used addresses which have transactions
+                        ; associated with them
+   :transfers     []    ; List of all transfers associated with the addresses
+   :inputs        []    ; List of all inputs available for the seed. Follows the
+                        ; `get-inputs` format of `address`, `balance`,
+                        ; `security` and `key-index`
+   :balance       0}    ; Latest confirmed balance
+  ```"
+  [iota & args]
+  (js-utils/js-apply (api iota) "getAccountData" args))

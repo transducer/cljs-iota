@@ -170,6 +170,7 @@
           ["QHBYXQWRAHQJZEIARWSQGZJTAIITOZRMBFICIPAVD9YRJMXFXBDPFDTRAHHHP9YPDUVTNOFWZGFGWMYHEKNAGNJHMW"]
           ["ZIJGAJ9AADLRPWNCYNNHUHRRAC9QOUDATEDQUMTNOTABUVRPTSTFQDGZKFYUUIE9ZEBIVCCXXXLKX9999"]
           (fn [err res]
+            ;; TODO
             (is (string/includes? (str err) "subtangle has not been updated yet"))
             (done)))))
 
@@ -196,6 +197,7 @@
           27
           "27"
           (fn [err res]
+            ;; TODO
             (is (string/includes? (str err) "subtangle has not been updated yet"))
             #_(is (contains-keys? res
                                 :trunk-transaction
@@ -245,4 +247,134 @@
           ;; TODO: returns Invalid attached Trytes provided
           (fn [err res]
             #_(is (= nil err))
+            (done)))))
+
+
+;;;;
+;;;; JavaScript API tests
+
+(deftest get-transactions-objects-test
+  (async done
+         (iota-api/get-transactions-objects
+          iota
+          ["AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"]
+          (fn [err res]
+            (is (contains-keys? (first res)
+                                :address
+                                :last-index
+                                :hash
+                                :attachment-timestamp
+                                :value
+                                :bundle
+                                :trunk-transaction
+                                :branch-transaction
+                                :signature-message-fragment
+                                :current-index
+                                :attachment-timestamp-upper-bound
+                                :tag
+                                :obsolete-tag
+                                :timestamp
+                                :nonce
+                                :attachment-timestamp-lower-bound))
+            (done)))))
+
+
+(deftest find-transactions-objects-by-bundles-test
+  (async done
+         (iota-api/find-transaction-objects
+          iota
+          {:bundles
+           ["RVORZ9999999999999999999999999999999999999999999999999999999999999999999999999999999999999"
+            "RVORZ9999999999999999999999999999999999999999999999999999999999999999999999999999999999999"]}
+          (fn [err res]
+            (is (= [] res))
+            (done)))))
+
+
+(deftest find-transactions-objects-by-addresses-test
+  (async done
+         (iota-api/find-transaction-objects
+          iota
+          {:addresses
+           ["RVORZ9SIIP9RCYMREUIXXVPQIPHVCNPQ9HZWYKFWYWZRE9JQKG9REPKIASHUUECPSQO9JT9XNMVKWYGVAZETAIRPTM"
+            "RVORZ9SIIP9RCYMREUIXXVPQIPHVCNPQ9HZWYKFWYWZRE9JQKG9REPKIASHUUECPSQO9JT9XNMVKWYGVAZETAIRPTM"]}
+          (fn [err res]
+            (is (= [] res))
+            (done)))))
+
+
+(deftest find-transactions-objects-by-tags-test
+  (async done
+         (iota-api/find-transaction-objects
+          iota
+          {:tags ["TAG"]}
+          (fn [err res]
+            (is (= [] res))
+            (done)))))
+
+
+(deftest find-transactions-objects-by-approvees-test
+  (async done
+         (iota-api/find-transaction-objects
+          iota
+          {:approvees ["OAATQS9VQLSXCLDJVJJVYUGONXAXOFMJOZNSYWRZSWECMXAQQURHQBJNLD9IOFEPGZEPEMPXCIVRX9999"]}
+          (fn [err res]
+            (is (= [] res))
+            (done)))))
+
+
+(deftest get-latest-inclusion-test
+  (async done
+         (iota-api/get-latest-inclusion
+          iota
+          ["OAATQS9VQLSXCLDJVJJVYUGONXAXOFMJOZNSYWRZSWECMXAQQURHQBJNLD9IOFEPGZEPEMPXCIVRX9999"]
+          (fn [err res]
+            ;; TODO
+            (is (string/includes? (str err) "subtangle has not been updated yet"))
+            (done)))))
+
+
+;;; Mentioned in iota.lib.js README, but not implemented on API object
+#_(deftest broadcast-and-store-test
+  (async done
+         (iota-api/broadcast-and-store
+          iota
+          ["OAATQS9VQLSXCLDJVJJVYUGONXAXOFMJOZNSYWRZSWECMXAQQURHQBJNLD9IOFEPGZEPEMPXCIVRX9999"]
+          (fn [err res]
+            (is (= nil err))
+            (done)))))
+
+
+(deftest get-new-address-test
+  (async done
+         (iota-api/get-new-address
+          iota
+          "OAATQS9VQLSXCLDJVJJVYUGONXAXOFMJOZNSYWRZSWECMXAQQURHQBJNLD9IOFEPGZEPEMPXCIVRX9999"
+          {:index      1
+           :checksum   true
+           :total      1
+           :security   1
+           :return-all true}
+          (fn [err res]
+            (is (= res ["VIYTWLBLSQDSGODGJUIYZHIVFNCHXZZOILRGFU9FMMYOLWNWDUUIBWAZIKOKHR9FSGKFRRMTRNYISFEP9VODCVPQFC"]))
+            (done)))))
+
+
+(deftest get-account-data-test
+  (async done
+         (iota-api/get-account-data
+          iota
+          "OAATQS9VQLSXCLDJVJJVYUGONXAXOFMJOZNSYWRZSWECMXAQQURHQBJNLD9IOFEPGZEPEMPXCIVRX9999"
+          (fn [err res]
+            (is (string/includes? (str err) "subtangle has not been updated yet"))
+            ;; TODO
+            ;; {:latest-address "" ; Latest, unused address which has no transactions in
+            ;;                             ; the tangle
+            ;;  :addresses     []    ; List of all used addresses which have transactions
+            ;;                             ; associated with them
+            ;;  :transfers     []    ; List of all transfers associated with the addresses
+            ;;  :inputs        []    ; List of all inputs available for the seed. Follows the
+            ;;                             ; `get-inputs` format of `address`, `balance`,
+            ;;                             ; `security` and `key-index`
+            ;;  :balance       0}
             (done)))))
