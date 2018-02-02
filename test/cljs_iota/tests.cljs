@@ -1,7 +1,8 @@
 (ns cljs-iota.tests
   "Unit tests that are running against a local node.
 
-  Start local node via `java -jar iri-<version>.jar -p 14265`."
+  Start local node via instructions in
+  https://github.com/schierlm/private-iota-testnet"
   (:require [cljs-iota.api :as iota-api]
             [cljs-iota.core :as iota]
             [cljs.test :refer-macros [async deftest is testing]]
@@ -11,7 +12,7 @@
 (enable-console-print!)
 
 
-(def iota (iota/create-iota "http://localhost:14265"))
+(def iota (iota/create-iota "http://localhost:14700"))
 
 
 ;;;;
@@ -21,7 +22,7 @@
   (is (= (iota/version iota) "0.4.6"))
   (is (= (iota/host iota) "http://localhost"))
   (is (= (iota/port iota) 14265))
-  (is (= (iota/provider iota) "http://localhost:14265"))
+  (is (= (iota/provider iota) "http://localhost:14700"))
   (is (= (iota/sandbox iota) false))
   (is (= (iota/token iota) false)))
 
@@ -102,7 +103,7 @@
          (iota-api/get-tips
           iota
           (fn [err res]
-            (is (= [] res))
+            (is (= 1 (count res)))
             (done)))))
 
 
@@ -111,10 +112,9 @@
          (iota-api/find-transactions
           iota
           {:bundles
-           ["RVORZ9999999999999999999999999999999999999999999999999999999999999999999999999999999999999"
-            "RVORZ9999999999999999999999999999999999999999999999999999999999999999999999999999999999999"]}
+           ["RVORZ9999999999999999999999999999999999999999999999999999999999999999999999999999999999999"]}
           (fn [err res]
-            (is (= [] res))
+            (is (string/includes? (str err) "Invalid bundles input"))
             (done)))))
 
 
@@ -170,8 +170,7 @@
           ["QHBYXQWRAHQJZEIARWSQGZJTAIITOZRMBFICIPAVD9YRJMXFXBDPFDTRAHHHP9YPDUVTNOFWZGFGWMYHEKNAGNJHMW"]
           ["ZIJGAJ9AADLRPWNCYNNHUHRRAC9QOUDATEDQUMTNOTABUVRPTSTFQDGZKFYUUIE9ZEBIVCCXXXLKX9999"]
           (fn [err res]
-            ;; TODO
-            (is (string/includes? (str err) "subtangle has not been updated yet"))
+            (is (string/includes? (str err) "Invalid transactions input"))
             (done)))))
 
 
@@ -185,39 +184,54 @@
             (is (contains-keys? res
                                 :balances
                                 :duration
-                                :milestone
+                                :references
                                 :milestone-index))
             (done)))))
 
 
 (deftest get-transactions-to-approve-test
   (async done
-         (iota-api/get-transactions-to-approve
+         (iota-api/get-tips
           iota
-          27
-          "27"
           (fn [err res]
-            ;; TODO
-            (is (string/includes? (str err) "subtangle has not been updated yet"))
-            #_(is (contains-keys? res
-                                :trunk-transaction
-                                :branch-transaction
-                                :duration))
-            (done)))))
+            (let [tip (first res)]
+              (iota-api/get-transactions-to-approve
+               iota
+               27
+               tip
+               (fn [_ r]
+                 (is (contains-keys? r
+                                     :trunk-transaction
+                                     :branch-transaction
+                                     :duration))
+                 (done))))))))
 
 
 (deftest attach-to-tangle-test
+  ;; First get transactions to approve, then attach to Tangle
   (async done
-         (iota-api/attach-to-tangle
+         (iota-api/get-tips
           iota
-           "IIQOEZSYJEKLYTOJLYSOCSMAYTYAXVVZFEYADXBTNTWCEISR9BDNXOISVYYFXKFJCMCVRLCDXIUE99999"
-           "XDKUAPIUXBEIYJDEYJGWVDHRDXINFOJJDADQETYCGHLBZVXF9JYVJYWQZKQH9DVXKBBJVUIJ9QXS99999"
-           18
-           "LKAZEPHCGCABZWSWZWZBIBOSJLJZYUTAQOZVLKHI9ZZUERLDBHEAZGRSYEHZGIXHCGEEJALGIJSGUPNOB"
           (fn [err res]
-            ;; TODO: latest value seems to be invalid. Don't know why.
-            #_(contains-keys? res :trytes)
-            (done)))))
+            (let [tip (first res)]
+              (iota-api/get-transactions-to-approve
+               iota
+               27
+               tip
+               (fn [_ {:keys [trunk-transaction
+                              branch-transaction
+                              duration]}]
+                 (iota-api/attach-to-tangle
+                  iota
+                  trunk-transaction
+                  branch-transaction
+                  18
+                  "999999999999999999999999999999999999999999999999999999999999999999999999999999999"
+                  (fn [err res]
+                    ;; TODO
+                    (string/includes? (str err) "Invalid trytes")
+                    #_(contains-keys? res :trytes)
+                    (done))))))))))
 
 
 (deftest interrupt-attaching-to-tangle-test
@@ -250,8 +264,8 @@
             (done)))))
 
 
-;;;;
-;;;; JavaScript API tests
+;; ;;;;
+;; ;;;; JavaScript API tests
 
 (deftest get-transactions-objects-test
   (async done
@@ -287,7 +301,7 @@
            ["RVORZ9999999999999999999999999999999999999999999999999999999999999999999999999999999999999"
             "RVORZ9999999999999999999999999999999999999999999999999999999999999999999999999999999999999"]}
           (fn [err res]
-            (is (= [] res))
+            (is (string/includes? (str err) "Invalid bundles input"))
             (done)))))
 
 
@@ -329,8 +343,8 @@
           iota
           ["OAATQS9VQLSXCLDJVJJVYUGONXAXOFMJOZNSYWRZSWECMXAQQURHQBJNLD9IOFEPGZEPEMPXCIVRX9999"]
           (fn [err res]
-            ;; TODO
-            (is (string/includes? (str err) "subtangle has not been updated yet"))
+            (let [transaction-confirmed? false]
+              (is (= (first res) transaction-confirmed?)))
             (done)))))
 
 
@@ -366,15 +380,10 @@
           iota
           "OAATQS9VQLSXCLDJVJJVYUGONXAXOFMJOZNSYWRZSWECMXAQQURHQBJNLD9IOFEPGZEPEMPXCIVRX9999"
           (fn [err res]
-            (is (string/includes? (str err) "subtangle has not been updated yet"))
-            ;; TODO
-            ;; {:latest-address "" ; Latest, unused address which has no transactions in
-            ;;                             ; the tangle
-            ;;  :addresses     []    ; List of all used addresses which have transactions
-            ;;                             ; associated with them
-            ;;  :transfers     []    ; List of all transfers associated with the addresses
-            ;;  :inputs        []    ; List of all inputs available for the seed. Follows the
-            ;;                             ; `get-inputs` format of `address`, `balance`,
-            ;;                             ; `security` and `key-index`
-            ;;  :balance       0}
+            (is (contains-keys? res
+                                :latest-address
+                                :addresses
+                                :transfers
+                                :inputs
+                                :balance))
             (done)))))

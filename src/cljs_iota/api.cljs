@@ -204,6 +204,7 @@
   Arguments:
   depth - Number of bundles to go back to determine the transactions for
   approval.
+  reference - the tips you are going to reference with an approved transaction?
   callback - Callback with error and result"
   [iota & args]
   (js-utils/js-apply (api iota) "getTransactionsToApprove" args))
