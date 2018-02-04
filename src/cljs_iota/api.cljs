@@ -350,6 +350,131 @@
 
 ;;; TODO next up: https://github.com/iotaledger/iota.lib.js/#getinputs
 
+(defn get-inputs
+  "Gets all possible inputs of a seed and returns them with the total balance.
+  This is either done deterministically (by genearating all addresses until
+  `find-transactions` returns null for a corresponding address), or by providing a
+  key range to use for searching through.
+
+  You can also define the minimum `threshold` that is required. This means that if
+  you provide the `threshold` value, you can specify that the inputs should only
+  be returned if their collective balance is above the threshold value.
+
+  Arguments:
+  seed - tryte-encoded seed. It should be noted that this seed is not transferred
+  options - optional map with follows keys:
+    :start - int Starting key index
+    :end - int Ending key index
+    :security - Int Security level to be used for the private key / address. Can
+                be 1, 2 or 3
+    :threshold - int Minimum threshold of accumulated balances from the inputs
+                 that is requested
+  callback - optional callback.
+
+  Return a map with the following keys:
+  :inputs - list of inputs objects consisting of `address`, `balance` and
+            `key-index`
+  :total-balance - int aggregated balance of all inputs"
+  [iota & args]
+  (js-utils/js-apply (api iota) "getInputs" args))
+
+
+(defn prepare-transfers
+  "Main purpose of this function is to get an array of transfer objects as
+  input, and then prepare the transfer by generating the correct bundle, as well
+  as choosing and signing the inputs if necessary (if it's a value transfer).
+  The output of this function is an array of the raw transaction data (trytes).
+
+  You can provide multiple transfer objects, which means that your prepared
+  bundle will have multiple outputs to the same, or different recipients. As
+  single transfer object takes the values of: `address`, `value`, `message`,
+  `tag`. The message and tag values are required to be tryte-encoded. If you do
+  not supply a message or a tag, the library will automatically enter empty ones
+  for you. As such the only required fields in each transfers object are `address`
+  and value.
+
+  If you provide an address with a checksum, this function will automatically
+  validate the address for you with the utils function `is-valid-checksum`.
+
+  For the options, you can provide a list of inputs, that will be used for
+  signing the transfer's inputs. It should be noted that these inputs (an array
+  of objects) should have the provided 'security', `key-index` and `address`
+  values:
+
+  ```
+  [{:key-index val
+    :address val
+    :security val}]
+  ```
+
+  The library validates these inputs then and ensures that you have sufficient
+  balance. When defining these inputs, you can also provide multiple inputs on
+  different security levels. The library will correctly sign these inputs using
+  your seed and the corresponding private keys. Here is an example using
+  security level 3 and 2 for a transfer:
+
+  ```
+  (prepare-transfers
+    seed
+    [{:address \"SSEWOZSDXOVIURQRBTBDLQXWIXOLEUXHYBGAVASVPZ9HBTYJJEWBR9PDTGMXZGKPTGSUDW9QLFPJHTIEQZNXDGNRJE\"
+      :value   10000}]
+    {:inputs
+     [{:address   \"XB9IBINADVMP9K9FEIIR9AYEOFUU9DP9EBCKOTPSDVSNRRNVSJOPTFUHSKSLPDJLEHUBOVEIOJFPDCZS9\"
+       :balance   1500
+       :key-index 0
+       :security  3}
+      {:address  \"W9AZFNWZZZNTAQIOOGYZHKYJHSVMALVTWJSSZDDRVEIXXWPNWEALONZLPQPTCDZRZLHNIHSUKZRSZAZ9W\"
+       :balance  8500
+       :key-index 7
+       :security 2}]}
+    (fn [err res] (println err res)))
+  ```
+
+  The `address` option can be used to define the address to which a remainder
+  balance (if that is the case), will be sent to. So if all your inputs have a
+  combined balance of 2000, and your spending 1800 of them, 200 of your tokens
+  will be sent to that remainder address. If you do not supply the `address`, the
+  library will simply generate a new one from your seed (taking `security` into
+  account, or using the standard security value of 2 (medium)).
+
+  Arguments:
+
+  seed - string tryte-encoded seed. It should be noted that this seed is not
+         transferred
+  transfers-array - List of transfer objects:
+    :address - 81-tryte encoded address of recipient
+    :value - int value to be transferred.
+    :message - tryte-encoded message to be included in the bundle.
+    :tag - Tryte-encoded tag. Maximum value is 27 trytes.
+  options - map which is optional, keys:
+  :inputs - List of inputs used for funding the transfer
+  :address - string if defined, this address will be used for sending the
+             remainder value (of the inputs) to.
+  :security - int Security level to be used for the private key / addresses.
+              This is for inputs and generating of the remainder address in
+              case you did not specify it. Can be 1, 2 or 3
+  callback - optional callback.
+
+  Returns an array that contains the trytes of the new bundle."
+  [iota & args]
+  (js-utils/js-apply (api iota) "prepareTransfers" args))
+
+
+(defn send-trytes
+  "Wrapper function that does `attach-to-tangle` and finally, it broadcasts and
+  stores the transactions.
+
+  Arguments:
+  trytes - vector with trytes
+  depth - int depth value that determines how far to go for tip selection
+  min-weight-magnitude - int minimum weight magnitude
+  callback - Function Optional callback.
+
+  Returns an array of the transfer (transaction objects)."
+  [iota & args]
+  (js-utils/js-apply (api iota) "sendTrytes" args))
+
+
 (defn get-account-data
   "Similar to `get-transfers`, just a bit more comprehensive in the sense that
   it also returns the addresses, transfers, inputs and balance that are
@@ -365,8 +490,8 @@
   options - optional map with:
     :start - Starting key index for search
     :end - Ending key index for search
-  security - Security level to be used for the private key / addresses,
-             which is used for getting all associated transfers
+    :security - Security level to be used for the private key / addresses,
+                which is used for getting all associated transfers
   callback - Optional callback with error and result
 
 
