@@ -24,6 +24,8 @@ TODO valid (`valid.cljs`):
 TODO:
 - More random `generate-seed` method in `core.cljs`.
 - Use [tools.deps](https://github.com/clojure/tools.deps.alpha) instead of lein
+- clojure.spec everything
+
 
 ## Installation
 
