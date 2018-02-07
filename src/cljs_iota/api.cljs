@@ -475,6 +475,61 @@
   (js-utils/js-apply (api iota) "sendTrytes" args))
 
 
+(defn send-transfer
+  "Wrapper function that basically does `prepare-transfers`, as well as
+  `attach-to-tangle` and finally, it broadcasts and stores the transactions
+  locally.
+
+  Arguments:
+  iota - IOTA client instance
+  seed - string tryte-encoded seed. If provided, will be used for signing and
+         picking inputs.
+  depth - int depth
+  `min-weight-magnitude` - minimum weight magnitude
+  transfers - coll of transfer objects:
+    :address - string 81-tryte encoded address of recipient
+    :value - int value to be transferred.
+    :message - string tryte-encoded message to be included in the bundle.
+    :tag - string 27-tryte encoded tag.
+  options: Optional map with keys:
+    :inputs - coll of inputs used for funding the transfer
+    :address: string if defined, this address will be used for sending the
+              remainder value (of the inputs) to.
+  callback: fn Optional callback
+
+  Returns a collection of the transfer (transaction objects)."
+  [iota & args]
+  (js-utils/js-apply (api iota) "sendTransfer" args))
+
+
+(defn promote-transaction
+  "Promotes a transaction by adding spam on top of it, as long as it is
+  promotable. Will promote by adding transfers on top of the current one with
+  `delay` interval. Use `{:interrupt bool/fn}` as params to terminate the
+  promotion. If `:delay` in params is set to 0 only one promotion transfer will be
+  sent.
+
+  Arguments:
+  iota - IOTA client instance
+  transaction - string Transaction hash, has to be tail.
+  depth - int depth
+  min-weight-magnitude - int minimum weight magnitude
+  transfers - coll of transfer objects:
+    :address - string 81-tryte encoded address of recipient
+    :value - int value to be transferred.
+    :message - string tryte-encoded message to be included in the bundle.
+    :tag - string 27-tryte encoded tag.
+  params - Map with following keys:
+    :delay - int Delay between promotion transfers
+    :interrupt - boolean || fn Flag to terminate promotion, can be boolean or a
+                 function returning a boolean
+  callback - Callback function with error and result.
+
+  Returns a coll of the Promotion transfer (transaction object)."
+  [iota & args]
+  (js-utils/js-apply (api iota) "promoteTransaction" args))
+
+
 (defn get-account-data
   "Similar to `get-transfers`, just a bit more comprehensive in the sense that
   it also returns the addresses, transfers, inputs and balance that are

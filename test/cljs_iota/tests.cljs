@@ -491,3 +491,80 @@
                                 :nonce
                                 :attachment-timestamp-lower-bound ))
             (done)))))
+
+
+(deftest send-transfer-test
+  (async done
+         (iota-api/send-transfer
+          iota
+          "OAATQS9VQLSXCLDJVJJVYUGONXAXOFMJOZNSYWRZSWECMXAQQURHQBJNLD9IOFEPGZEPEMPXCIVRX9999"
+          1
+         14
+         [{:address "OEUJLDUONDOOMANNKZIIPDFZFT9ZJWBURMCKLKIVGQPBEPHCOCSUHXBF9RJJDQC9ONMBZCATTSTABUHFCMSLQYGMTW"
+           :value   0
+           :message "FOO"
+           :tag     "NONE"}]
+         {}
+          (fn [err res]
+            (is (contains-keys? (first res)
+                 :address
+                 :last-index
+                 :hash
+                 :attachment-timestamp
+                 :value
+                 :bundle
+                 :trunk-transaction
+                 :branch-transaction
+                 :signature-message-fragment
+                 :current-index
+                 :attachment-timestamp-upper-bound
+                 :tag
+                 :obsolete-tag
+                 :timestamp
+                 :nonce
+                 :attachment-timestamp-lower-bound))
+            (done)))))
+
+
+(deftest promote-transaction-test
+  (let [transfers [{:address "OEUJLDUONDOOMANNKZIIPDFZFT9ZJWBURMCKLKIVGQPBEPHCOCSUHXBF9RJJDQC9ONMBZCATTSTABUHFCMSLQYGMTW"
+                    :value   0
+                    :message "FOO"
+                    :tag     "NONE"}]]
+    (async done
+           ;; First send a transfer
+           (iota-api/send-transfer
+            iota
+            "OAATQS9VQLSXCLDJVJJVYUGONXAXOFMJOZNSYWRZSWECMXAQQURHQBJNLD9IOFEPGZEPEMPXCIVRX9999"
+            1
+            14
+            transfers
+            {}
+            ;; Then promote it
+            (fn [err [{:keys [hash]} & txs]]
+              (iota-api/promote-transaction
+               iota
+               hash
+               1
+               14
+               transfers
+               {}
+               (fn [e [tx & txs]]
+                 (is (contains-keys? tx
+                      :address
+                      :last-index
+                      :hash
+                      :attachment-timestamp
+                      :value
+                      :bundle
+                      :trunk-transaction
+                      :branch-transaction
+                      :signature-message-fragment
+                      :current-index
+                      :attachment-timestamp-upper-bound
+                      :tag
+                      :obsolete-tag
+                      :timestamp
+                      :nonce
+                      :attachment-timestamp-lower-bound))
+                 (done))))))))
