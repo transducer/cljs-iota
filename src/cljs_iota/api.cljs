@@ -9,7 +9,7 @@
   "Gets API object from IOTA library instance.
 
   Parameter:
-  IOTA - IOTA library instance"
+  iota - IOTA client instance"
   [iota]
   (aget iota "api"))
 
@@ -21,6 +21,7 @@
   "Returns information about your node.
 
   Arguments:
+  iota - IOTA client instance
   callback - Callback with error and result
 
   Return values:
@@ -57,6 +58,7 @@
   activity count. The activity counter is reset after restarting IRI.
 
   Arguments:
+  iota - IOTA client instance
   callback - Callback with error and result
 
   Return Values:
@@ -77,6 +79,7 @@
   after you relaunch IRI.
 
   Arguments:
+  iota - IOTA client instance
   uris - List of URI elements
   callback - Callback with error and result
 
@@ -92,6 +95,7 @@
   you restart your node.
 
   Arguments:
+  iota - IOTA client instance
   uris - List of URI elements
   callback - Callback with error and result
 
@@ -105,6 +109,7 @@
   "Returns the list of tips.
 
   Arguments:
+  iota - IOTA client instance
   callback - Callback with error and result"
   [iota & args]
   (js-utils/js-apply (api iota) "getTips" args))
@@ -116,6 +121,7 @@
   the same order, is returned for all individual elements.
 
   Arguments:
+  iota - IOTA client instance
   request-map - The keys of the map can either be `:bundles`, `:addresses`,
   `:tags` or `:approvees`. The values should be lists. *Using multiple of these
   input fields returns the intersection of the values.*
@@ -154,6 +160,7 @@
   utility functions for more details.
 
   Arguments:
+  iota - IOTA client instance
   hashes -List of transaction hashes of which you want to get trytes from.
   callback - Callback with error and result"
   [iota & args]
@@ -171,6 +178,7 @@
   transaction is confirmed or not.
 
   Arguments:
+  iota - IOTA client instance
   transactions - List of transactions you want to get the inclusion state for.
   tips - List of tips (including milestones) you want to search for the
   inclusion state.
@@ -187,6 +195,7 @@
   same order as the addresses were provided as input.
 
   Arguments:
+  iota - IOTA client instance
   addresses - List of addresses you want to get the confirmed balance from
   threshold - Confirmation threshold, should be set to 100.
   callback - Callback with error and result"
@@ -202,6 +211,7 @@
   transactions).
 
   Arguments:
+  iota - IOTA client instance
   depth - Number of bundles to go back to determine the transactions for
   approval.
   reference - the tips you are going to reference with an approved transaction?
@@ -224,6 +234,7 @@
   the network.
 
   Arguments:
+  iota - IOTA client instance
   trunk-transaction - Trunk transaction to approve.
   branch-transaction - Branch transaction to approve.
   min-weight-magnitude - Proof of Work intensity. Minimum value is `18`.
@@ -244,6 +255,7 @@
   call are provided by `attach-to-tangle`.
 
   Arguments:
+  iota - IOTA client instance
   trytes - List of raw data of transactions to be rebroadcast
   callback - Callback with error and result"
   [iota & args]
@@ -255,6 +267,7 @@
   are returned by `attach-to-tangle`.
 
   Arguments:
+  iota - IOTA client instance
   trytes - List of raw data of transactions to be rebroadcast.
   callback - Callback with error and result"
   [iota & args]
@@ -270,6 +283,7 @@
   objects for a list of transaction hashes.
 
   Arguments:
+  iota - IOTA client instance
   hashes - List of transaction hashes
   callback - Callback with error and result
 
@@ -289,6 +303,7 @@
   it to get the inclusion states of a list of transaction hashes.
 
   Arguments:
+  iota - IOTA client instance
   hashes - Array List of transaction hashes
   callback - Function callback with error and result
 
@@ -303,6 +318,7 @@
   "Wrapper function for `broadcast-transactions` and `store-transactions`.
 
   Arguments:
+  iota - IOTA client instance
   trytes: List of transaction trytes to be broadcast and stored. Has to be
           trytes that were returned from `attach-to-tangle`
   callback: Function callback with error and result parameters.
@@ -328,6 +344,7 @@
   3 	    High 	          243-trits
 
   Arguments:
+  iota - IOTA client instance
 
   seed - tryte-encoded seed. It should be noted that this seed is not
          transferred
@@ -361,6 +378,7 @@
   be returned if their collective balance is above the threshold value.
 
   Arguments:
+  iota - IOTA client instance
   seed - tryte-encoded seed. It should be noted that this seed is not transferred
   options - optional map with follows keys:
     :start - int Starting key index
@@ -438,6 +456,7 @@
   account, or using the standard security value of 2 (medium)).
 
   Arguments:
+  iota - IOTA client instance
 
   seed - string tryte-encoded seed. It should be noted that this seed is not
          transferred
@@ -465,6 +484,7 @@
   stores the transactions.
 
   Arguments:
+  iota - IOTA client instance
   trytes - vector with trytes
   depth - int depth value that determines how far to go for tip selection
   min-weight-magnitude - int minimum weight magnitude
@@ -540,6 +560,7 @@
 
 
   Arguments:
+  iota - IOTA client instance
   seed - Tryte-encoded seed. It should be noted that this seed is not
          transferred
   options - optional map with:

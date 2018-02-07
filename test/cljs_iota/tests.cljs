@@ -16,6 +16,13 @@
 
 
 ;;;;
+;;;; TEST UTILS
+
+(defn contains-keys? [m & ks]
+  (every? #(contains? m %) ks))
+
+
+;;;;
 ;;;; CORE
 
 (deftest core-tests
@@ -29,9 +36,6 @@
 
 ;;;;
 ;;;; API
-
-(defn contains-keys? [m & ks]
-  (every? #(contains? m %) ks))
 
 
 (deftest get-node-info-test
@@ -103,7 +107,7 @@
          (iota-api/get-tips
           iota
           (fn [err res]
-            (is (= 1 (count res)))
+            (is (= 81 (count (first res))))
             (done)))))
 
 
@@ -374,21 +378,6 @@
             (done)))))
 
 
-(deftest get-account-data-test
-  (async done
-         (iota-api/get-account-data
-          iota
-          "OAATQS9VQLSXCLDJVJJVYUGONXAXOFMJOZNSYWRZSWECMXAQQURHQBJNLD9IOFEPGZEPEMPXCIVRX9999"
-          (fn [err res]
-            (is (contains-keys? res
-                                :latest-address
-                                :addresses
-                                :transfers
-                                :inputs
-                                :balance))
-            (done)))))
-
-
 (deftest get-inputs-test
   (async done
          (iota-api/get-inputs
@@ -568,3 +557,18 @@
                       :nonce
                       :attachment-timestamp-lower-bound))
                  (done))))))))
+
+
+(deftest get-account-data-test
+  (async done
+         (iota-api/get-account-data
+          iota
+          "OAATQS9VQLSXCLDJVJJVYUGONXAXOFMJOZNSYWRZSWECMXAQQURHQBJNLD9IOFEPGZEPEMPXCIVRX9999"
+          (fn [err res]
+            (is (contains-keys? res
+                                :latest-address
+                                :addresses
+                                :transfers
+                                :inputs
+                                :balance))
+            (done)))))

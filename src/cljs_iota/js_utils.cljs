@@ -30,7 +30,7 @@
 
 
 (def cljkk->js
-  "From Clojure with kebab-cased keywords to JavaScript."
+  "From Clojure to JavaScript object with camelCase keys."
   (comp clj->js (partial transform-keys camel-case)))
 
 

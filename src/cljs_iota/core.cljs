@@ -40,7 +40,7 @@
   "Returns a string representing the current version of the IOTA library.
 
   Parameters:
-  IOTA - IOTA instance
+  iota - IOTA instance
 
   Example:
   user> `(iota/version iota-instance)`
@@ -52,7 +52,7 @@
   "Returns a string representing the current host of the IOTA node.
 
   Parameters:
-  IOTA - IOTA instance
+  iota - IOTA instance
 
   Example:
   user> `(iota/host iota-instance)`
@@ -76,7 +76,7 @@
   "Returns a string representing the current provider of the IOTA library.
 
   Parameters:
-  IOTA - IOTA instance
+  iota - IOTA instance
 
   Example:
   user> `(iota/provider iota-instance)`
@@ -90,7 +90,7 @@
   See https://dev.iota.org/sandbox.
 
   Parameters:
-  IOTA - IOTA instance
+  iota - IOTA instance
 
   Example:
   user> `(iota/sandbox iota-instance)`
@@ -104,7 +104,7 @@
   Auth token (only used if `sandbox` is true).
 
   Parameters:
-  IOTA - IOTA instance
+  iota - IOTA instance
 
   Example:
   user> `(iota/token iota-instance)`
