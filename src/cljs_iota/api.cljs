@@ -2,7 +2,9 @@
   "Core API functionality for interacting with the IOTA core.
 
   See https://iota.readme.io/v1.2.0/reference"
-  (:require [cljs-iota.js-utils :as js-utils]))
+  (:require [cljs-iota.js-utils :as js-utils]
+            [cljs.core.async :as async :refer [>! chan]])
+  (:require-macros [cljs.core.async.macros :refer [go]]))
 
 
 (defn api
@@ -543,11 +545,83 @@
     :delay - int Delay between promotion transfers
     :interrupt - boolean || fn Flag to terminate promotion, can be boolean or a
                  function returning a boolean
-  callback - Callback function with error and result.
+  callback - fn Callback function with error and result.
 
   Returns a coll of the Promotion transfer (transaction object)."
   [iota & args]
   (js-utils/js-apply (api iota) "promoteTransaction" args))
+
+
+(defn replay-bundle
+  "Takes a tail transaction hash as input, gets the bundle associated with the
+  transaction and then replays the bundle by attaching it to the tangle.
+
+  Arguments:
+  transaction: String Transaction hash, has to be tail
+  depth: int depth
+  min-weight-magnitude: int minimun weight magnitude
+  callback: fn Optional callback "
+  [iota & args]
+  (js-utils/js-apply (api iota) "replayBundle" args))
+
+
+(defn broadcast-bundle
+  "Takes a tail transaction hash as input, gets the bundle associated with the
+  transaction and then rebroadcasts the entire bundle.
+
+  Arguments:
+  transaction - String Transaction hash, has to be tail
+  callback - fn Optional callback"
+  [iota & args]
+  (js-utils/js-apply (api iota) "broadcastBundle" args))
+
+
+(defn get-bundle
+  "This function returns the bundle which is associated with a transaction.
+  Input has to be a tail transaction (i.e. current-index = 0). If there are
+  conflicting bundles (because of a replay for example) it will return multiple
+  bundles. It also does important validation checking (signatures, sum, order)
+  to ensure that the correct bundle is returned.
+
+  Arguments:
+  transaction - String Transaction hash, has to be tail
+  callback - fn Optional callback
+
+  Returns a collection of the corresponding bundle of a tail transaction. The
+  bundle itself consists of individual transaction objects"
+  [iota & args]
+  (js-utils/js-apply (api iota) "getBundle" args))
+
+
+(defn get-transfers
+  "Returns the transfers which are associated with a seed. The transfers are
+  determined by either calculating deterministically which addresses were
+  already used, or by providing a list of indexes to get the addresses and the
+  associated transfers from. The transfers are sorted by their timestamp. It
+  should be noted that, because timestamps are not enforced in IOTA, that this
+  may lead to incorrectly sorted bundles (meaning that their chronological
+  ordering in the Tangle is different).
+
+  If you want to have your transfers split into received / sent, you can use the
+  utility function `categorize-transfers`
+
+  Arguments:
+  seed - string tryte-encoded seed. It should be noted that this seed is not
+         transferred
+  options - optional map with following keys:
+
+    start - int Starting key index for search
+    end - int Ending key index for search
+    security - int Security level to be used for the private key / addresses,
+               which is used for getting all associated transfers.
+    inclusion-states - bool If true, it gets the inclusion states of the
+                       transfers.
+  callback - fn Optional callback.
+
+  Returns an array of transfers. Each array is a bundle for the entire
+  transfer."
+  [iota & args]
+  (js-utils/js-apply (api iota) "getBundle" args))
 
 
 (defn get-account-data
@@ -557,7 +631,6 @@
   useful in getting all the relevant information of your account. If you want to
   have your transfers split into received / sent, you can use the utility
   function `categorize-transfers`.
-
 
   Arguments:
   iota - IOTA client instance
@@ -569,7 +642,6 @@
     :security - Security level to be used for the private key / addresses,
                 which is used for getting all associated transfers
   callback - Optional callback with error and result
-
 
   Returns map of your account data in the following format:
   ```
@@ -586,3 +658,38 @@
   ```"
   [iota & args]
   (js-utils/js-apply (api iota) "getAccountData" args))
+
+
+(defn promotable?
+  "Checks if tail transaction is promotable by calling `check-consistency` API
+  call.
+
+  Arguments:
+  tail - string tail transaction hash
+
+  Returns a core.async channel that receives true or false"
+  [iota & args]
+  (let [ch (chan)]
+    (.then (js-utils/js-apply (api iota) "isPromotable" args)
+           #(go (>! ch %)))
+    ch))
+
+
+(defn reattachable?
+  "This API function helps you to determine whether you should replay a
+  transaction or make a completely new transaction with a different seed. What
+  this function does, is it takes an input address (i.e. from a spent
+  transaction) as input and then checks whether any transactions with a value
+  transferred are confirmed. If yes, it means that this input address has
+  already been successfully used in a different transaction and as such you
+  should no longer replay the transaction.
+
+  Arguments:
+
+  input-address: string | collection address used as input in a transaction.
+                 Either string or array.
+  callback: fn callback function
+
+  Returns true or false (if you provided an array, it's an array of bools)"
+  [iota & args]
+  (js-utils/js-apply (api iota) "isReattachable" args))

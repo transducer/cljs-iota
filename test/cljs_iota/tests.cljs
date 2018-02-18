@@ -5,8 +5,10 @@
   https://github.com/schierlm/private-iota-testnet"
   (:require [cljs-iota.api :as iota-api]
             [cljs-iota.core :as iota]
+            [cljs.core.async :as async :refer [<! >! take! chan]]
             [cljs.test :refer-macros [async deftest is testing]]
-            [clojure.string :as string]))
+            [clojure.string :as string])
+  (:require-macros [cljs.core.async.macros :refer [go]]))
 
 
 (enable-console-print!)
@@ -20,6 +22,29 @@
 
 (defn contains-keys? [m & ks]
   (every? #(contains? m %) ks))
+
+
+;; NOTE: this can be used only *once* in a deftest.
+;; See also: https://clojurescript.org/tools/testing#async-testing
+;; Source: https://stackoverflow.com/a/30781278
+(defn test-async
+  "Asynchronous test awaiting ch to produce a value or close."
+  [ch]
+  (async done
+         (take! ch (fn [_] (done)))))
+
+
+;; Source: https://stackoverflow.com/a/30781278
+(defn test-within
+  "Asserts that ch does not close or produce a value within ms. Returns a
+  channel from which the value can be taken."
+  [ms ch]
+  (go
+    (let [t      (async/timeout ms)
+          [v ch] (async/alts! [ch t])]
+      (is (not= ch t)
+          (str "Test should have finished within " ms "ms."))
+      v)))
 
 
 ;;;;
@@ -107,6 +132,7 @@
          (iota-api/get-tips
           iota
           (fn [err res]
+            (when err (println err))
             (is (= 81 (count (first res))))
             (done)))))
 
@@ -559,16 +585,134 @@
                  (done))))))))
 
 
+(deftest replay-bundle-test
+  (let [tail-transaction     "PWWWAKUJYRHFLVDCIOFKAKBUYTPUXQMBYCYSB9WIFY9WCGNZKOH9DOECZEZURIGRTRXFKNUZONGFA9999"
+        depth                1
+        min-weight-magnitude 10]
+    (async done
+           (iota-api/replay-bundle
+            iota
+            tail-transaction
+            depth
+            min-weight-magnitude
+            (fn [err res]
+              (is (contains-keys? (first res)
+                                  :address
+                                  :last-index
+                                  :hash
+                                  :attachment-timestamp
+                                  :value
+                                  :bundle
+                                  :trunk-transaction
+                                  :branch-transaction
+                                  :signature-message-fragment
+                                  :current-index
+                                  :attachment-timestamp-upper-bound
+                                  :tag
+                                  :obsolete-tag
+                                  :timestamp
+                                  :nonce
+                                  :attachment-timestamp-lower-bound))
+              (done))))))
+
+
+(deftest broadcast-bundle-test
+  (let [tail-transaction "PWWWAKUJYRHFLVDCIOFKAKBUYTPUXQMBYCYSB9WIFY9WCGNZKOH9DOECZEZURIGRTRXFKNUZONGFA9999"]
+    (async done
+           (iota-api/broadcast-bundle
+            iota
+            tail-transaction
+            (fn [err res]
+              (is (contains-keys? res :duration))
+              (done))))))
+
+
+(deftest get-bundle-test
+  (let [tail-transaction "PWWWAKUJYRHFLVDCIOFKAKBUYTPUXQMBYCYSB9WIFY9WCGNZKOH9DOECZEZURIGRTRXFKNUZONGFA9999"]
+    (async done
+           (iota-api/get-bundle
+            iota
+            tail-transaction
+            (fn [err res]
+              (is (contains-keys? (first res)
+                                  :address
+                                  :last-index
+                                  :hash
+                                  :attachment-timestamp
+                                  :value
+                                  :bundle
+                                  :trunk-transaction
+                                  :branch-transaction
+                                  :signature-message-fragment
+                                  :current-index
+                                  :attachment-timestamp-upper-bound
+                                  :tag
+                                  :obsolete-tag
+                                  :timestamp
+                                  :nonce
+                                  :attachment-timestamp-lower-bound))
+              (done))))))
+
+
+(deftest get-transfers-test
+  (let [seed "PWWWAKUJYRHFLVDCIOFKAKBUYTPUXQMBYCYSB9WIFY9WCGNZKOH9DOECZEZURIGRTRXFKNUZONGFA9999"]
+    (async done
+           (iota-api/get-transfers
+            iota
+            seed
+            (fn [err res]
+              (is (contains-keys? (first res)
+                                  :address
+                                  :last-index
+                                  :hash
+                                  :attachment-timestamp
+                                  :value
+                                  :bundle
+                                  :trunk-transaction
+                                  :branch-transaction
+                                  :signature-message-fragment
+                                  :current-index
+                                  :attachment-timestamp-upper-bound
+                                  :tag
+                                  :obsolete-tag
+                                  :timestamp
+                                  :nonce
+                                  :attachment-timestamp-lower-bound))
+              (done))))))
+
+
 (deftest get-account-data-test
-  (async done
-         (iota-api/get-account-data
-          iota
-          "OAATQS9VQLSXCLDJVJJVYUGONXAXOFMJOZNSYWRZSWECMXAQQURHQBJNLD9IOFEPGZEPEMPXCIVRX9999"
-          (fn [err res]
-            (is (contains-keys? res
-                                :latest-address
-                                :addresses
-                                :transfers
-                                :inputs
-                                :balance))
-            (done)))))
+  (let [seed "OAATQS9VQLSXCLDJVJJVYUGONXAXOFMJOZNSYWRZSWECMXAQQURHQBJNLD9IOFEPGZEPEMPXCIVRX9999"]
+    (async done
+           (iota-api/get-account-data
+            iota
+            seed
+            (fn [err res]
+              (is (contains-keys? res
+                                  :latest-address
+                                  :addresses
+                                  :transfers
+                                  :inputs
+                                  :balance))
+              (done))))))
+
+
+(deftest promotable?-test
+  (let [tail-transaction "PWWWAKUJYRHFLVDCIOFKAKBUYTPUXQMBYCYSB9WIFY9WCGNZKOH9DOECZEZURIGRTRXFKNUZONGFA9999"]
+    (test-async
+     (test-within 1000
+                  (go
+                    (is (true? (<! (iota-api/promotable?
+                                    iota
+                                    tail-transaction)))))))))
+
+
+(deftest reattachable?-test
+  (let [address "OAATQS9VQLSXCLDJVJJVYUGONXAXOFMJOZNSYWRZSWECMXAQQURHQBJNLD9IOFEPGZEPEMPXCIVRX9999"]
+    (async done
+           (iota-api/reattachable?
+            iota
+            address
+            (fn [err reattachable?]
+              (is (true? reattachable?))
+              (done))))))
