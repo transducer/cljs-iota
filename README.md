@@ -1,5 +1,7 @@
 # cljs-iota
 
+[![Clojars Project](https://img.shields.io/clojars/v/cljs-iota.svg)](https://clojars.org/cljs-iota)
+
 ClojureScript API for [IOTA](https://iota.org/) Ledger's [JavaScript library](https://github.com/iotaledger/iota.lib.js/).
 
 ## Status
