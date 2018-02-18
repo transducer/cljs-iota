@@ -1,66 +1,18 @@
-(ns cljs-iota.tests
+(ns cljs-iota.api-test
   "Unit tests that are running against a local node.
 
   Start local node via instructions in
   https://github.com/schierlm/private-iota-testnet"
   (:require [cljs-iota.api :as iota-api]
             [cljs-iota.core :as iota]
-            [cljs.core.async :as async :refer [<! >! take! chan]]
+            [cljs-iota.test-utils :refer [contains-keys? test-async test-within]]
+            [cljs.core.async :as async :refer [<!]]
             [cljs.test :refer-macros [async deftest is testing]]
             [clojure.string :as string])
   (:require-macros [cljs.core.async.macros :refer [go]]))
 
 
-(enable-console-print!)
-
-
 (def iota (iota/create-iota "http://localhost:14700"))
-
-
-;;;;
-;;;; TEST UTILS
-
-(defn contains-keys? [m & ks]
-  (every? #(contains? m %) ks))
-
-
-;; NOTE: this can be used only *once* in a deftest.
-;; See also: https://clojurescript.org/tools/testing#async-testing
-;; Source: https://stackoverflow.com/a/30781278
-(defn test-async
-  "Asynchronous test awaiting ch to produce a value or close."
-  [ch]
-  (async done
-         (take! ch (fn [_] (done)))))
-
-
-;; Source: https://stackoverflow.com/a/30781278
-(defn test-within
-  "Asserts that ch does not close or produce a value within ms. Returns a
-  channel from which the value can be taken."
-  [ms ch]
-  (go
-    (let [t      (async/timeout ms)
-          [v ch] (async/alts! [ch t])]
-      (is (not= ch t)
-          (str "Test should have finished within " ms "ms."))
-      v)))
-
-
-;;;;
-;;;; CORE
-
-(deftest core-tests
-  (is (= (iota/version iota) "0.4.6"))
-  (is (= (iota/host iota) "http://localhost"))
-  (is (= (iota/port iota) 14265))
-  (is (= (iota/provider iota) "http://localhost:14700"))
-  (is (= (iota/sandbox iota) false))
-  (is (= (iota/token iota) false)))
-
-
-;;;;
-;;;; API
 
 
 (deftest get-node-info-test
