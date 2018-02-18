@@ -2,7 +2,7 @@
   "Utilities for interacting with JavaScript.
 
   Copied from cljs-web3 by district0x."
-  (:require [camel-snake-kebab.core :as cs :include-macros true]
+  (:require [camel-snake-kebab.core :as kebab :include-macros true]
             [camel-snake-kebab.extras :refer [transform-keys]]
             [clojure.string :as string]))
 
@@ -17,8 +17,8 @@
       (keyword? x) keyword)))
 
 
-(def camel-case (safe-case cs/->camelCase))
-(def kebab-case (safe-case cs/->kebab-case))
+(def camel-case (safe-case kebab/->camelCase))
+(def kebab-case (safe-case kebab/->kebab-case))
 
 
 (def js->cljk #(js->clj % :keywordize-keys true))
@@ -68,6 +68,19 @@
   (fn [iota & args]
     (if (fn? (first args))
       (js-apply (apply aget iota (butlast ks))
-                (str "get" (cs/->PascalCase (last ks)))
+                (str "get" (kebab/->PascalCase (last ks)))
                 args)
       (js->cljkk (apply aget iota ks)))))
+
+
+(defn create-async-fn
+  "Creates a function that returns a core.async channel that will receive
+  [err res]."
+  [f]
+  (fn [& args]
+    (let [[ch args] (if (instance? cljs.core.async.impl.channels/ManyToManyChannel (first args))
+                      [(first args) (rest args)]
+                      [(chan) args])]
+      (apply f (concat args [(fn [err res]
+                               (go (>! ch [err res])))]))
+      ch)))
