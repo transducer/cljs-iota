@@ -370,8 +370,6 @@
   (js-utils/js-apply (api iota) "getNewAddress" args))
 
 
-;;; TODO next up: https://github.com/iotaledger/iota.lib.js/#getinputs
-
 (defn get-inputs
   "Gets all possible inputs of a seed and returns them with the total balance.
   This is either done deterministically (by genearating all addresses until
