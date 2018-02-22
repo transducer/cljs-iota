@@ -66,11 +66,14 @@
   Return Values:
 
     :address - address of your peer
-    :numberOfAllTransactions - Number of all transactions sent (invalid, valid,
-  already-seen)
-    :numberOfInvalidTransactions - Invalid transactions your peer has sent you.
-  These are transactions with invalid signatures or overall schema.
-    :numberOfNewTransactions - New transactions which were transmitted."
+
+    :number-of-all-transactions - Number of all transactions sent (invalid,
+                                  valid, already-seen)
+
+    :number-of-invalid-transactions - Invalid transactions your peer has sent you.
+                                      These are transactions with invalid
+                                      signatures or overall schema.
+    :number-of-new-transactions - New transactions which were transmitted."
   [iota & args]
   (js-utils/js-apply (api iota) "getNeighbors" args))
 
