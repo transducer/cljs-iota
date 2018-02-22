@@ -665,6 +665,7 @@
   call.
 
   Arguments:
+  iota - IOTA client instance
   tail - string tail transaction hash
 
   Returns a core.async channel that receives true or false"
@@ -685,7 +686,7 @@
   should no longer replay the transaction.
 
   Arguments:
-
+  iota - IOTA client instance
   input-address: string | collection address used as input in a transaction.
                  Either string or array.
   callback: fn callback function
