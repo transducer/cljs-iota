@@ -48,6 +48,8 @@
 
 
 (defn js-apply
+  "Applies method on JavaScript object. Arguments and return value are
+  Clojure style (kebab-case)."
   ([this method-name]
    (js-apply this method-name nil))
   ([this method-name args]
