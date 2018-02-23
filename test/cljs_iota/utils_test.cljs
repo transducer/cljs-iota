@@ -28,3 +28,12 @@
                         (iota-utils/convert-units iota "1" :xxx :i)))
   (is (thrown-with-msg? js/Error #"not a number"
                         (iota-utils/convert-units iota "a" :ki :i))))
+
+
+(deftest add-checksum-test
+  (let [address  "UGSNHG9ULXTTHADQZZJDIWQSAPHFIRSMHJFADTJRJCDAKGNCEEUPYAF99CXFEZQDXRNQVCL9MFKNNUBZW"
+        checksum "ISZJXTWEC"]
+    (is (= (->> (iota-utils/add-checksum iota address)
+                (take-last 9)
+                (apply str))
+           checksum))))

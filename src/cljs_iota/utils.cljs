@@ -43,3 +43,26 @@
                        [value
                         (stringify-unit from-unit)
                         (stringify-unit to-unit)])))
+
+
+(defn add-checksum
+  "Takes a tryte-encoded input value and adds a checksum (length is user
+  defined). Standard checksum length is 9 trytes. If `is-address` is defined as
+  true, it will validate if it's a correct 81-tryte encoded address.
+
+  Arguments:
+  iota - IOTA client instance
+  input-value - string | coll Either an individual tryte value, or a coll of
+                              tryte values.
+  :checksum-length - int Checksum length. Default is 9 trytes
+  :is-address - bool indicates whether the input value should be validated as an
+                     address (81-trytes). Default is true.
+
+  Returns the input value + checksum either as a string or coll, depending on
+  the input."
+  [iota input-value & {:keys [checksum-length is-address]
+                       :or   {checksum-length 9 is-address true}
+                       :as   opts}]
+  (js-utils/js-apply (utils iota)
+                     "addChecksum"
+                     [input-value checksum-length is-address]))
