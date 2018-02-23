@@ -4,11 +4,10 @@
   Start local node via instructions in
   https://github.com/schierlm/private-iota-testnet"
   (:require [cljs-iota.core :as iota]
-            [cljs-iota.test-utils :refer [contains-keys? test-async test-within]]
+            [cljs-iota.test-utils :refer [contains-keys?]]
             [cljs-iota.utils :as iota-utils]
             [cljs.test :refer-macros [async deftest is testing]]
-            [clojure.string :as string]
-            [goog.array :as garray]))
+            [clojure.string :as string]))
 
 
 (def iota (iota/create-iota "http://localhost:14700"))

@@ -6,7 +6,7 @@
 
 
 (defn utils
-  "Gets utils object from IOTA library instance.
+  "Gets utils object from IOTA client.
 
   Parameter:
   iota - IOTA client instance"
