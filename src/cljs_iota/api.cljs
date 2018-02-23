@@ -436,6 +436,7 @@
 
   ```
   (prepare-transfers
+    iota
     seed
     [{:address \"SSEWOZSDXOVIURQRBTBDLQXWIXOLEUXHYBGAVASVPZ9HBTYJJEWBR9PDTGMXZGKPTGSUDW9QLFPJHTIEQZNXDGNRJE\"
       :value   10000}]
@@ -604,19 +605,19 @@
   ordering in the Tangle is different).
 
   If you want to have your transfers split into received / sent, you can use the
-  utility function `categorize-transfers`
+  utility function `iota-utils/categorize-transfers`.
 
   Arguments:
   seed - string tryte-encoded seed. It should be noted that this seed is not
          transferred
   options - optional map with following keys:
 
-    start - int Starting key index for search
-    end - int Ending key index for search
-    security - int Security level to be used for the private key / addresses,
-               which is used for getting all associated transfers.
-    inclusion-states - bool If true, it gets the inclusion states of the
-                       transfers.
+    :start - int Starting key index for search
+    :end - int Ending key index for search
+    :security - int Security level to be used for the private key / addresses,
+                    which is used for getting all associated transfers.
+    :inclusion-states - bool If true, it gets the inclusion states of the
+                             transfers.
   callback - fn Optional callback.
 
   Returns an array of transfers. Each array is a bundle for the entire
