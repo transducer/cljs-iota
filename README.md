@@ -6,26 +6,20 @@ ClojureScript API for [IOTA](https://iota.org/) Ledger's [JavaScript library](ht
 
 ## Status
 
-Implemented core functions and Standard API.
+Implemented all methods.
 
 TODO Standard API (`api.cljs`):
 - `get-trytes`, only returns 9s
-- `attach-to-tangle`, `broadcast-transactions`, and `store-transactions`
-  return "Invalid Trytes provided".
-
-TODO multisig (`multisig.cljs`):
-- All methods and docstrings.
-
-TODO utils (`utils.cljs`):
-- All methods and docstrings.
-
-TODO valid (`valid.cljs`):
-- All methods and docstrings.
+- Fix methods that return "Invalid Trytes provided".
 
 TODO:
-- More random `generate-seed` method in `core.cljs`.
-- Use [tools.deps](https://github.com/clojure/tools.deps.alpha) instead of lein
+- Use [tools.deps](https://github.com/clojure/tools.deps.alpha) instead of lein?
+- Add `valid-transaction?` and `valid-bundle?` test util methods
+- Move test data to separate namespace
 - clojure.spec everything
+
+TODO:
+Add iris like MAM?
 
 
 ## Installation
