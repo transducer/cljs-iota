@@ -7,7 +7,7 @@
   (:require-macros [cljs.core.async.macros :refer [go]]))
 
 
-(defn api
+(defn- api
   "Gets API object from IOTA library instance.
 
   Parameter:

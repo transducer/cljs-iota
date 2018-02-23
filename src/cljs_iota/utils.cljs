@@ -5,7 +5,7 @@
             [clojure.string :as string]))
 
 
-(defn utils
+(defn- utils
   "Gets utils object from IOTA client.
 
   Parameter:

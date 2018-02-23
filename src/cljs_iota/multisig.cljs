@@ -12,7 +12,7 @@
   (:require [cljs-iota.js-utils :as js-utils]))
 
 
-(defn multisig
+(defn- multisig
   "Gets multisig object from IOTA client.
 
   Parameter:
