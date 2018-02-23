@@ -1,4 +1,4 @@
-(defproject cljs-iota "0.0.6"
+(defproject cljs-iota "0.0.7"
   :description    "ClojureScript API for IOTA JavaScript API"
 
   :url            "https://github.com/transducer/cljs-iota"
