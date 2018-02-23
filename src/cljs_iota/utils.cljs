@@ -66,3 +66,15 @@
   (js-utils/js-apply (utils iota)
                      "addChecksum"
                      [input-value checksum-length is-address]))
+
+
+(defn no-checksum
+  "Takes an 90-trytes address as input and simply removes the checksum.
+
+  Arguments:
+  iota - IOTA client instance
+  address: string | coll 90-trytes address. Either string or a coll.
+
+  Returns string | coll - returns the 81-tryte address(es)"
+  [iota address]
+  (js-utils/js-apply (utils iota) "noChecksum" [address]))

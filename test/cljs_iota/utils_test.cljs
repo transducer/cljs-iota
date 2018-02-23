@@ -37,3 +37,11 @@
                 (take-last 9)
                 (apply str))
            checksum))))
+
+
+(deftest no-checksum-test
+  (let [address "UGSNHG9ULXTTHADQZZJDIWQSAPHFIRSMHJFADTJRJCDAKGNCEEUPYAF99CXFEZQDXRNQVCL9MFKNNUBZWISZJXTWEC"]
+    (is (= (iota-utils/no-checksum iota address)
+           (->> address
+                (drop-last 9)
+                (apply str))))))
