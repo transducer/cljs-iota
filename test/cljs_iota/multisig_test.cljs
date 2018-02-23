@@ -13,11 +13,11 @@
 (def iota (iota/create-iota "http://localhost:14700"))
 
 
-;; (deftest get-key-test
-;;   (let [seed "PWWWAKUJYRHFLVDCIOFKAKBUYTPUXQMBYCYSB9WIFY9WCGNZKOH9DOECZEZURIGRTRXFKNUZONGFA9999"]
-;;     (is (= 2187 (count (iota-multisig/get-key iota seed 0 1))))
-;;     (is (= 4374 (count (iota-multisig/get-key iota seed 0 2))))
-;;     (is (= 6561 (count (iota-multisig/get-key iota seed 0 3))))))
+(deftest get-key-test
+  (let [seed "PWWWAKUJYRHFLVDCIOFKAKBUYTPUXQMBYCYSB9WIFY9WCGNZKOH9DOECZEZURIGRTRXFKNUZONGFA9999"]
+    (is (= 2187 (count (iota-multisig/get-key iota seed 0 1))))
+    (is (= 4374 (count (iota-multisig/get-key iota seed 0 2))))
+    (is (= 6561 (count (iota-multisig/get-key iota seed 0 3))))))
 
 
 (deftest get-digest-test
