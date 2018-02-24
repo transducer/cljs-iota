@@ -17,4 +17,5 @@
              'cljs-iota.valid-test))
 
 
-(run-all-tests)
+(comment
+  (run-all-tests))
