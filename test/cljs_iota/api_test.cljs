@@ -15,6 +15,9 @@
 (def iota (iota/create-iota "http://localhost:14700"))
 
 
+;;;;
+;;;; Standard API tests
+
 (deftest get-node-info-test
   (async done
          (iota-api/get-node-info
@@ -139,9 +142,6 @@
           ["OAATQS9VQLSXCLDJVJJVYUGONXAXOFMJOZNSYWRZSWECMXAQQURHQBJNLD9IOFEPGZEPEMPXCIVRX9999"]
           (fn [err [tryte & _]]
             (is (= "9999999999" (subs tryte 0 10)))
-            ;; NOT EXPECTED, should be as
-            ;; in
-            ;; https://iota.readme.io/v1.2.0/reference#gettrytes
             (done)))))
 
 
@@ -230,6 +230,7 @@
             (done)))))
 
 
+(declare trytes)
 (deftest broadcast-transactions-test
   (async done
          (iota-api/broadcast-transactions

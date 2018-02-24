@@ -158,9 +158,7 @@
 
 
 (defn get-trytes
-  "DOES NOT WORK PROPERLY - returns only nines.
-
-  Returns the raw transaction data (trytes) of a specific transaction. These
+  "Returns the raw transaction data (trytes) of a specific transaction. These
   trytes can then be easily converted into the actual transaction object. See
   utility functions for more details.
 
