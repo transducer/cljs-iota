@@ -1,4 +1,4 @@
-(defproject cljs-iota "1.0.0"
+(defproject cljs-iota "1.0.1"
   :description    "ClojureScript API for IOTA JavaScript API"
 
   :url            "https://github.com/transducer/cljs-iota"
@@ -7,8 +7,8 @@
                    :url  "http://www.eclipse.org/legal/epl-v10.html"}
 
   :dependencies   [[org.clojure/clojurescript "1.9.946"]
-                    [camel-snake-kebab "0.4.0"]
-                    [cljsjs/iota "0.4.6-0"]]
+                   [camel-snake-kebab "0.4.0"]
+                   [cljsjs/iota "0.4.7-0"]]
 
   :plugins        [[lein-cljsbuild "1.1.7"]]
 
