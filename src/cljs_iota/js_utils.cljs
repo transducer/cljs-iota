@@ -2,11 +2,11 @@
   "Utilities for interacting with JavaScript.
 
   Copied from cljs-web3 by district0x."
+  (:require-macros [cljs.core.async.macros :refer [go]])
   (:require [camel-snake-kebab.core :as kebab :include-macros true]
             [camel-snake-kebab.extras :refer [transform-keys]]
             [clojure.string :as string]
-            [cljs.core.async :as async :refer [>! chan]])
-  (:require-macros [cljs.core.async.macros :refer [go]]))
+            [cljs.core.async :as async :refer [>! chan]]))
 
 
 (defn safe-case [case-fn]

@@ -1,7 +1,7 @@
 (ns cljs-iota.test-utils
+  (:require-macros [cljs.core.async.macros :refer [go]])
   (:require [cljs.core.async :as async :refer [take! chan]]
-            [cljs.test :refer-macros [is async]])
-  (:require-macros [cljs.core.async.macros :refer [go]]))
+            [cljs.test :refer-macros [is async]]))
 
 
 (defn contains-keys? [m & ks]

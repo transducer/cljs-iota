@@ -2,9 +2,9 @@
   "Core API functionality for interacting with the IOTA core.
 
   See https://iota.readme.io/v1.2.0/reference"
+  (:require-macros [cljs.core.async.macros :refer [go]])
   (:require [cljs-iota.js-utils :as js-utils]
-            [cljs.core.async :as async :refer [>! chan]])
-  (:require-macros [cljs.core.async.macros :refer [go]]))
+            [cljs.core.async :as async :refer [>! chan]]))
 
 
 (defn- api
