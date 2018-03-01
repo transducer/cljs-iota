@@ -27,10 +27,11 @@ iota.valid.isAddress(address)
 becomes
 
 ```clojure
-(iota-api/get-transaction-objects hashes (fn [err res]))
-(iota-utils/convert-units value from-unit to-unit)
-(iota-multisig/get-key seed index security)
-(iota-valid/address? address)
+(def iota (iota/create-iota provider))
+(iota-api/get-transaction-objects iota hashes (fn [err res]))
+(iota-utils/convert-units iota value from-unit to-unit)
+(iota-multisig/get-key iota seed index security)
+(iota-valid/address? iota address)
 ```
 
 Docstrings for the methods and namespaces are adjusted to ClojureScript from the [IOTA JavaScript library](https://github.com/iotaledger/iota.lib.js#iota-javascript-library).
